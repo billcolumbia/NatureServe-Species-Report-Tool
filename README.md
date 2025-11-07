@@ -1,0 +1,60 @@
+# NatureServe Species Reporting Tool
+
+This is a CLI tool made with Python (v3.14). It fetches and extracts species data from the NatureServe Explorer API. Doing this by hand is tedious, automating it is much less!
+
+## Overview
+
+Use this script to get taxonomic and habitat information for multiple species from the NatureServe Explorer API in the CSV format. It's designed to process batch requests efficiently with rate limiting (500ms between requests) to respect the resources of NatureServe. Please keep this is in mind and respect their work when you use it!
+
+## Features
+
+- Fetches species data including:
+  - Basic identifiers (elementGlobalId, uniqueId, speciesGlobalElementGlobalId)
+  - Common and scientific names
+  - Last modified timestamps
+  - Global rank reasons
+  - Habitat comments and descriptions across multiple habitat types (marine, terrestrial, riverine, palustrine, lacustrine, subterranean, estuarine)
+- Rate limited (500ms second delay between requests)
+- Exports results to timestamped CSV files in the `results/` directory
+
+## Usage
+
+```bash
+python app.py --datafile data/your_species_ids.csv
+```
+The datafile should be a .csv file containing a single column of species IDs (e.g. 'ELEMENT_GLOBAL.2.105212') **with no column header**.  See data/example-data.csv for a better example.
+
+Please keep in mind that because of rate limiting **the maximum request throughput is roughly 120 species per minute**. If you are working with large datasets consider batching your work by splitting up IDs into multiple files to help prevent a long running process. For example, 4000 species will take upwards of 30 mins for a single batch.
+
+Consider experimenting with a small batch of 10 or so and check the output before committing to a larger set.
+
+You may also hit memory contraints as we write the CSV once at the end of the batch. While the process is running the results are stored in memory! Use with care!
+
+## Output
+
+Results are saved to `results/<datafile_name>_<timestamp>.csv` with matching species data.
+
+### Example Output
+
+| Field | Value |
+|-------|-------|
+| URL | https://explorer.natureserve.org/api/data/taxon/ELEMENT_GLOBAL.2.105212 |
+| Element Global ID | 105212 |
+| Unique ID | ELEMENT_GLOBAL.2.105212 |
+| Species Global Element Global ID | 105212 |
+| Primary Common Name | Gray Wolf |
+| Scientific Name | Canis lupus |
+| Last Modified | November 01, 2025, 02:14:20 PM UTC |
+| Grank Reasons | Holarctic distribution; survives in wilderness that is not subject to human population pressures; extirpated from most of contiguous U.S. due to human-caused direct mortality; reintroduced populations in Yellowstone and central Idaho have been increasing rapidly; many (tens of thousands) remain in Canada/Alaska, about 2000 south of Canada, 100,000+ in Palearctic. NatureServe rank calculator version 3.1 yielded a rank of G5? and this species is nationally ranked N5 in Canada. |
+| Habitat Comments | No particular habitat preference. In Minnesota and Wisconsin, usually occurs in areas with few roads, which increase human access and incompatible land uses (Thiel 1985, Mech et al. 1988, Mech 1989) but apparently can occupy semi-wild lands if ungulate prey are abundant and if not killed by humans (see Mladenoff et al. 1997). Minimum of 10,000-13,000 sq km (with low road density) might be necessary to support a viable population (USFWS 1990); a single pack does not constitute a "minimum viable population" (USFWS 1990). Young are born in an underground burrow that has been abandoned by another mammal or dug by wolf. In Northwest Territories, dens were most commonly located witin 50 km of northern tree line, which resulted in maximal availability of caribou during the denning and pup rearing period; within the tundra zone, dens were not preferentially located near caribou calving grounds (Heard and Williams 1992). In Minnesota, dens usually were not near territory boundaries; den use was traditional in most denning alpha females studied for more than 1 year; possibly the availability of a stable food supply source helped determine den location (Ciucci and Mech 1992). |
+| Marine Habitats | |
+| Terrestrial Habitats | Savanna, Woodland - Conifer, Shrubland/chaparral, Forest - Hardwood, Forest - Mixed, Forest - Conifer, Desert, Alpine, Tundra, Woodland - Hardwood, Woodland - Mixed, Grassland/herbaceous |
+| Riverine Habitats | |
+| Palustrine Habitats | |
+| Lacustrine Habitats | |
+| Subterranean Habitats | |
+| Estuarine Habitats | |
+
+## Disclaimer
+
+AI assistants were used to create this utility. This is not made as production grade code to be run on some server or something. It's a tool that was made quickly to save tons of manual labor. Please also spot check results to confirm accuracy! Use at your own risk.
