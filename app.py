@@ -187,24 +187,10 @@ def fetch_data(datafile_name: str):
     Args:
         datafile_name: Name of the datafile (also used to generate output filename)
     """
-    results = []
-
-    for i, route in enumerate(CURRENT_SET):
-        result = fetch_taxon_data(route, i)
-        results.append(result)
-
-        if i < len(CURRENT_SET) - 1:
-            print("Rate limiting...")
-            time.sleep(0.5)
-
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     datafile_stem = Path(datafile_name).stem
     output_filename = f"{datafile_stem}_{timestamp}.csv"
     output_path = Path("results") / output_filename
-
-    if not results:
-        print("\nNo results to save")
-        return
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -227,37 +213,60 @@ def fetch_data(datafile_name: str):
         "estuarineHabitats",
     ]
 
-    with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(headers)
+    rows_written = 0
+    total_routes = len(CURRENT_SET)
 
-        for result in results:
-            if result.get("error"):
-                row = [result["url"], result["error"]] + [""] * (len(headers) - 2)
-                writer.writerow(row)
-            else:
-                data = result["data"]
-                row = [
-                    result["url"],
-                    format_csv_value(data.get("elementGlobalId")),
-                    format_csv_value(data.get("uniqueId")),
-                    format_csv_value(data.get("speciesGlobalElementGlobalId")),
-                    format_csv_value(data.get("primaryCommonName")),
-                    format_csv_value(data.get("scientificName")),
-                    format_csv_value(data.get("lastModified")),
-                    format_csv_value(data.get("grankReasons")),
-                    format_csv_value(data.get("habitatComments")),
-                    format_csv_value(data.get("marineHabitats")),
-                    format_csv_value(data.get("terrestrialHabitats")),
-                    format_csv_value(data.get("riverineHabitats")),
-                    format_csv_value(data.get("palustrineHabitats")),
-                    format_csv_value(data.get("lacustrineHabitats")),
-                    format_csv_value(data.get("subterraneanHabitats")),
-                    format_csv_value(data.get("estuarineHabitats")),
-                ]
-                writer.writerow(row)
+    try:
+        with open(output_path, "w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(headers)
 
-    print(f"\nResults saved to {output_path}")
+            for i, route in enumerate(CURRENT_SET):
+                result = fetch_taxon_data(route, i)
+
+                if result.get("error"):
+                    row = [result["url"], result["error"]] + [""] * (len(headers) - 2)
+                    writer.writerow(row)
+                else:
+                    data = result["data"]
+                    row = [
+                        result["url"],
+                        format_csv_value(data.get("elementGlobalId")),
+                        format_csv_value(data.get("uniqueId")),
+                        format_csv_value(data.get("speciesGlobalElementGlobalId")),
+                        format_csv_value(data.get("primaryCommonName")),
+                        format_csv_value(data.get("scientificName")),
+                        format_csv_value(data.get("lastModified")),
+                        format_csv_value(data.get("grankReasons")),
+                        format_csv_value(data.get("habitatComments")),
+                        format_csv_value(data.get("marineHabitats")),
+                        format_csv_value(data.get("terrestrialHabitats")),
+                        format_csv_value(data.get("riverineHabitats")),
+                        format_csv_value(data.get("palustrineHabitats")),
+                        format_csv_value(data.get("lacustrineHabitats")),
+                        format_csv_value(data.get("subterraneanHabitats")),
+                        format_csv_value(data.get("estuarineHabitats")),
+                    ]
+                    writer.writerow(row)
+
+                rows_written += 1
+                csvfile.flush()
+
+                if i < total_routes - 1:
+                    print("Rate limiting...")
+                    time.sleep(0.5)
+
+        print(
+            f"\n✓ Complete: Successfully wrote all {rows_written}/{total_routes} rows to {output_path}"
+        )
+
+    except Exception as e:
+        print(
+            f"\n✗ Incomplete: Only {rows_written}/{total_routes} rows written to {output_path}"
+        )
+        print(f"Error: {e}")
+        print(f"Partial results have been saved and can be found at: {output_path}")
+        raise
 
 
 def load_species_from_csv(file_path: str) -> list:
