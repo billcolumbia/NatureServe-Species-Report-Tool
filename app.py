@@ -53,6 +53,31 @@ def extract_habitat_descriptions(
     return ", ".join(descriptions) if descriptions else None
 
 
+def extract_threat_categories(threat_assessments: Optional[list]) -> Optional[str]:
+    """
+    Extract IUCN threat category descriptions from elementGlobalThreatAssessments.
+
+    Args:
+        threat_assessments: List of threat assessment objects
+
+    Returns:
+        Comma-separated threat category descriptions, or None if none found
+    """
+    if not threat_assessments or not isinstance(threat_assessments, list):
+        return None
+
+    descriptions = []
+    for item in threat_assessments:
+        if isinstance(item, dict):
+            category = item.get("iucnThreatCategory")
+            if isinstance(category, dict):
+                desc = category.get("displayValueEn")
+                if desc:
+                    descriptions.append(str(desc))
+
+    return ", ".join(descriptions) if descriptions else None
+
+
 def extract_data(full_data: dict) -> dict:
     """
     Extract fields from the response.
@@ -127,6 +152,10 @@ def extract_data(full_data: dict) -> dict:
         ),
     ]
 
+    threat_categories = extract_threat_categories(
+        full_data.get("elementGlobalThreatAssessments")
+    )
+
     extracted = {
         "elementGlobalId": full_data.get("elementGlobalId"),
         "uniqueId": full_data.get("uniqueId"),
@@ -137,6 +166,7 @@ def extract_data(full_data: dict) -> dict:
         "grankReasons": full_data.get("grankReasons"),
         "habitatComments": species_chars.get("habitatComments"),
         "rangeExtent": range_extent.get("rangeExtentDescEn"),
+        "threatCategories": threat_categories,
     }
 
     for api_key, habitat_key, desc_key, output_key in habitat_types:
@@ -208,6 +238,7 @@ def fetch_data(datafile_name: str):
         "grankReasons",
         "habitatComments",
         "rangeExtent",
+        "threatCategories",
         "marineHabitats",
         "terrestrialHabitats",
         "riverineHabitats",
@@ -244,6 +275,7 @@ def fetch_data(datafile_name: str):
                         format_csv_value(data.get("grankReasons")),
                         format_csv_value(data.get("habitatComments")),
                         format_csv_value(data.get("rangeExtent")),
+                        format_csv_value(data.get("threatCategories")),
                         format_csv_value(data.get("marineHabitats")),
                         format_csv_value(data.get("terrestrialHabitats")),
                         format_csv_value(data.get("riverineHabitats")),
