@@ -77,6 +77,8 @@ def extract_data(full_data: dict) -> dict:
     """
     species_chars = full_data.get("speciesCharacteristics", {}) or {}
     species_global = full_data.get("speciesGlobal", {}) or {}
+    rank_info = full_data.get("rankInfo", {}) or {}
+    range_extent = rank_info.get("rangeExtent", {}) or {}
 
     last_modified_readable = format_last_modified(full_data.get("lastModified"))
 
@@ -134,6 +136,7 @@ def extract_data(full_data: dict) -> dict:
         "lastModified": last_modified_readable,
         "grankReasons": full_data.get("grankReasons"),
         "habitatComments": species_chars.get("habitatComments"),
+        "rangeExtent": range_extent.get("rangeExtentDescEn"),
     }
 
     for api_key, habitat_key, desc_key, output_key in habitat_types:
@@ -204,6 +207,7 @@ def fetch_data(datafile_name: str):
         "lastModified",
         "grankReasons",
         "habitatComments",
+        "rangeExtent",
         "marineHabitats",
         "terrestrialHabitats",
         "riverineHabitats",
@@ -239,6 +243,7 @@ def fetch_data(datafile_name: str):
                         format_csv_value(data.get("lastModified")),
                         format_csv_value(data.get("grankReasons")),
                         format_csv_value(data.get("habitatComments")),
+                        format_csv_value(data.get("rangeExtent")),
                         format_csv_value(data.get("marineHabitats")),
                         format_csv_value(data.get("terrestrialHabitats")),
                         format_csv_value(data.get("riverineHabitats")),
