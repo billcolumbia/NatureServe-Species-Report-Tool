@@ -167,6 +167,7 @@ def extract_data(full_data: dict) -> dict:
         "habitatComments": species_chars.get("habitatComments"),
         "rangeExtent": range_extent.get("rangeExtentDescEn"),
         "threatCategories": threat_categories,
+        "threatComments": rank_info.get("threatImpactComments"),
     }
 
     for api_key, habitat_key, desc_key, output_key in habitat_types:
@@ -239,6 +240,7 @@ def fetch_data(datafile_name: str):
         "habitatComments",
         "rangeExtent",
         "threatCategories",
+        "threatComments",
         "marineHabitats",
         "terrestrialHabitats",
         "riverineHabitats",
@@ -276,6 +278,7 @@ def fetch_data(datafile_name: str):
                         format_csv_value(data.get("habitatComments")),
                         format_csv_value(data.get("rangeExtent")),
                         format_csv_value(data.get("threatCategories")),
+                        format_csv_value(data.get("threatComments")),
                         format_csv_value(data.get("marineHabitats")),
                         format_csv_value(data.get("terrestrialHabitats")),
                         format_csv_value(data.get("riverineHabitats")),
