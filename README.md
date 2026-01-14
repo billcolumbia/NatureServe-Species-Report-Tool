@@ -16,6 +16,7 @@ Use this script to get taxonomic and habitat information for multiple species fr
   - Range extent
   - Habitat comments and descriptions across multiple habitat types (marine, terrestrial, riverine, palustrine, lacustrine, subterranean, estuarine)
   - Threat categories (id, description)
+  - Threat comments
 - Rate limited (500ms second delay between requests)
 - Exports results to timestamped CSV files in the `results/` directory
 
